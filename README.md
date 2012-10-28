@@ -52,7 +52,7 @@ Creating a new object from another one is the main function of `SK80.create()`. 
     
     bar.meth(); // logs 1
     bar.prop = 'hi';
-    bar.meth(); // lods "hi"
+    bar.meth(); // logs "hi"
     foo.meth(); // logs 1
 
 The link is live so any changes to the old object are reflected in the new one.
@@ -167,16 +167,25 @@ Here is an example of adding the "Classes" mixin:
         };
     });
 
-### `SK80.mixins.get(name)` (returns `Function`)
+### `SK80.mixins.get(name)` (returns `Function` or `undefined`)
 
 The mixins are stored privately to protect the data. However, fans of annonymous functions may wish to use the re-use example higher up. The `SK80.mixins.get()` method allow the mixin to be retrieved and executed.
 
 The following piece of code will retieve the "Classes" mixin.
 
-    var classTweaker = new SK80.mixins.get('Classes');
+    var ClassMixin = SK80.mixins.get('Classes'),
+        classTweaker = new ClassMixin();
     classTweaker.addClass(document.getElementById('myElementId'), 'SK80ified');
+
+Be aware that if the mixin is not found, `SK80.mixins.get()` will return `undefined`. This may cause errors if the retreived function is automatically executed without any previous checking.
 
 ### `SK80.mixins.list()` (returns `Array`)
 
 As the mixins are stores privately, it may be useful to know which mixins have been registered. `SK80.mixins.list()` will reveal all the registered mixins in the form of an array of strings containing all the names of the mixins.
 
+Here is an example of the list, assuming that the "Classes" mixin has been added as above.
+
+    var list = SK80.mixins.list();
+    list; // ['Classes']
+
+Manipulating this list has no effect on the mixins themselves and `SK80.mixins.list()` will always return a fresh list.
