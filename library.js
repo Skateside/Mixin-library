@@ -194,7 +194,7 @@ var SK80 = (function () {
 
                 if (mixins.hasOwnProperty(name)) {
                     throw {
-                        name: 'SyntaxError',
+                        name: 'PredefinedError',
                         message: 'SK80.mixins.add "' + name + '" mixin has ' +
                             'already been defined'
                     };
