@@ -106,32 +106,21 @@ var SK80 = (function () {
 
                 if (settings.hasOwnProperty('mixins')) {
                     if (!Array.isArray(settings.mixins)) {
-                        throw {
-                            name: 'TypeError',
-                            message: 'SK80.create mixins must be an Array'
-                        };
+                        throw new TypeError('SK80.create mixins must be an ' +
+                            'Array');
                     }
                     settings.mixins.forEach(function (mixin) {
                         if (!isString(mixin)) {
-                            throw {
-                                name: 'TypeError',
-                                message: 'SK80.create settings.mixins must ' +
-                                    'be an Array of Strings'
-                            };
+                            throw new TypeError('SK80.create settings.mixins ' +
+                                'must be an Array of Strings');
                         }
                         if (!store.hasOwnProperty(mixin)) {
-                            throw {
-                                name: 'ReferenceError',
-                                message: 'SK80.create "' + mixin + '" mixin ' +
-                                    'cannot be found'
-                            };
+                            throw new ReferenceError('SK80.create "' + mixin +
+                                '" mixin cannot be found');
                         }
                         if (!isFunction(store[mixin])) {
-                            throw {
-                                name: 'TypeError',
-                                message: 'SK80.create "' + mixin + '" mixin ' +
-                                    'is not a Function'
-                            };
+                            throw new TypeError('SK80.create "' + mixin +
+                                '" mixin is not a Function');
                         }
                         store[mixin].call(created);
                     });
@@ -140,11 +129,8 @@ var SK80 = (function () {
                 if (settings.hasOwnProperty('args')
                         && isFunction(created.init)) {
                     if (!Array.isArray(settings.args)) {
-                        throw {
-                            name: 'TypeError',
-                            message: 'SK80.create settings.args must be an ' +
-                                'Array'
-                        };
+                        throw new TypeError('SK80.create settings.args must ' +
+                            'be an Array');
                     }
                     created.init.apply(created, settings.args);
                 }
@@ -177,44 +163,29 @@ var SK80 = (function () {
                     mixins = getMixins(that);
 
                 if (!isString(name)) {
-                    throw {
-                        name: 'TypeError',
-                        message: 'SK80.mixins.add name argument must be a ' +
-                            'String'
-                    };
+                    throw new TypeError('SK80.mixins.add name argument must ' +
+                        'be a String');
                 }
 
                 if (!isFunction(mixin)) {
-                    throw {
-                        name: 'TypeError',
-                        message: 'SK80.mixins.add mixin argument must be a ' +
-                            'Function'
-                    };
+                    throw new TypeError('SK80.mixins.add mixin argument must ' +
+                        'be a Function');
                 }
 
                 if (mixins.hasOwnProperty(name)) {
-                    throw {
-                        name: 'PredefinedError',
-                        message: 'SK80.mixins.add "' + name + '" mixin has ' +
-                            'already been defined'
-                    };
+                    throw new Error('SK80.mixins.add "' + name + '" mixin ' +
+                        'has already been defined');
                 }
 
                 if (reserved.indexOf(name) > -1) {
-                    throw {
-                        name: 'SyntaxError',
-                        message: 'SK80.mixins.add "' + name + '" is a ' +
-                            'reserved word in JavaScript'
-                    };
+                    throw new SyntaxError('SK80.mixins.add "' + name + '" is ' +
+                        'a reserved word in JavaScript');
                 }
 
                 mixin.call(test);
                 if (Object.keys(test).length === 0) {
-                    throw {
-                        name: 'ImplimentationError',
-                        message: 'SK80.mixins.add "' + name + '" mixin does ' +
-                            'not add any new properties to an object'
-                    };
+                    throw new Error('SK80.mixins.add "' + name + '" mixin ' +
+                        'does not add any new properties to an object');
                 }
 
                 mixins[name] = mixin;
@@ -233,11 +204,8 @@ var SK80 = (function () {
                 var mixins = getMixins(that);
 
                 if (!isString(name)) {
-                    throw {
-                        name: 'TypeError',
-                        message: 'SK80.mixins.get name argument must be a ' +
-                            'String'
-                    };
+                    throw new TypeError('SK80.mixins.get name argument must ' +
+                        'be a String');
                 }
 
                 return mixins[name];

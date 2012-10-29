@@ -122,22 +122,17 @@ SK80.inter = (function () {
             var prop;
 
             if (!isString(name)) {
-                throw {
-                    name: 'TypeError',
-                    message: 'SK80.inter name arguments must be a String'
-                };
+                throw new TypeError('SK80.inter name arguments must be a ' +
+                    'String');
             }
             this.name = name;
 
             for (prop in properties) {
                 if (properties.hasOwnProperty(prop)) {
                     if (!isString(prop)) {
-                        throw {
-                            name: 'TypeError',
-                            message: 'SK80.inter properties argument can ' +
-                                'only contain Strings, ' + (typeof prop) +
-                                ' given'
-                        };
+                        throw new TypeError('SK80.inter properties argument ' +
+                            'can only contain Strings, ' + (typeof prop) +
+                            ' given');
                     }
                     properties[prop] = properties[prop].toLowerCase();
                 }
@@ -161,11 +156,8 @@ SK80.inter = (function () {
                 current;
 
             if (!this.name || !this.properties) {
-                throw {
-                    name: 'InitError',
-                    message: 'SK80.inter.matches called on a non-initialised ' +
-                        'interface'
-                };
+                throw new Error('SK80.inter.matches called on a non-' +
+                    'initialised interface');
             }
 
             for (prop in this.properties) {
@@ -177,13 +169,10 @@ SK80.inter = (function () {
                         gotten = 'missing';
                     }
                     if (gotten !== current) {
-                        throw {
-                            name: 'ValidationError',
-                            message: 'Object does not match the "' +
-                                this.name + '" interface: "' + prop + '" ' +
-                                'property is ' + gotten + ', should be ' +
-                                current
-                        };
+                        throw new Error('Object does not match the "' +
+                            this.name + '" interface: "' + prop + '" ' +
+                            'property is ' + gotten + ', should be ' +
+                            current);
                     }
                 }
             }

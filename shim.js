@@ -22,10 +22,7 @@
 // http://es5.github.com/#x9.9
     function toObject(o) {
         if (o === undefined || o === null) {
-            throw {
-                name: 'TypeError',
-                message: o + ' is null or not an object'
-            };
+            throw new TypeError(o + ' is null or not an object');
         }
         if (!isStringArray && toString.call(o) === '[object String]') {
             o = o.split('');
@@ -79,10 +76,7 @@
                 array  = toObject(this),
                 length = toUint32(array.length);
             if (toString.call(func) !== '[object Function]') {
-                throw {
-                    name: 'TypeError',
-                    message: func + ' is not a function'
-                };
+                throw new TypeError(func + ' is not a function');
             }
             while (index < length) {
                 if (objProto.hasOwnProperty.call(array, index)) {
@@ -138,11 +132,8 @@
                 object = {'__proto__': null};
             } else {
                 if (typeof proto !== 'object') {
-                    throw {
-                        name: 'TypeError',
-                        message: 'typeof prototype[' + (typeof proto) + '] ' +
-                            'must be an object'
-                    };
+                    throw new TypeError('typeof prototype[' + (typeof proto) +
+                        '] ' + 'must be an object');
                 }
                 F.prototype = proto;
                 object = new F();
@@ -150,11 +141,8 @@
             }
 
             if (properties !== undefined) {
-                throw {
-                    name: 'BrowserError',
-                    message: 'The second arguments of Object.create() is not' +
-                        'supported in this browser'
-                };
+                throw new Error('The second arguments of Object.create() is ' +
+                    'not supported in this browser');
             }
 
             return object;
@@ -181,10 +169,7 @@
                 hasOwn = Object.prototype.hasOwnProperty;
             if ((typeof object !== 'object' && typeof object !== 'function') ||
                     object === null) {
-                throw {
-                    name: 'TypeError',
-                    message: 'Object.keys called on a non-object'
-                };
+                throw new TypeError('Object.keys called on a non-object');
             }
             for (name in object) {
                 if (hasOwn.call(object, name)) {
