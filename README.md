@@ -142,7 +142,7 @@ An advantage of this style is the ability to re-use the mixins as stand-alone fu
     var classTweaker = new ClassesMixin();
     classTweaker.addClass(document.getElementById('myElementId'), 'SK80ified');
 
-If you prefer to use annonymous functions rather than variables like this example, mixins may be retrieves using `SK80.mixins.get()`.
+If you prefer to use anonymous functions rather than variables like this example, mixins may be retrieves using `SK80.mixins.get()`.
 
 When a mixin is added to the object by `SK80.create()`, no arguments are passed to the function. This may be useful to identify whether the mixin has been added using `SK80.create()` or executed as above.
 
@@ -154,7 +154,7 @@ Here is an example of adding the "Classes" mixin:
 
     SK80.mixins.add('Classes', ClassesMixin);
     
-    // Or, if you prefer to use annonymous functions:
+    // Or, if you prefer to use anonymous functions:
     // (Be aware that if the previous line is left in, an error will be thrown
     // because the "Classes" mixin has already been defined)
     SK80.mixins.add('Classes', function () {
@@ -169,7 +169,7 @@ Here is an example of adding the "Classes" mixin:
 
 ### `SK80.mixins.get(name)` (returns `Function` or `undefined`)
 
-The mixins are stored privately to protect the data. However, fans of annonymous functions may wish to use the re-use example higher up. The `SK80.mixins.get()` method allow the mixin to be retrieved and executed.
+The mixins are stored privately to protect the data. However, fans of anonymous functions may wish to use the re-use example higher up. The `SK80.mixins.get()` method allow the mixin to be retrieved and executed.
 
 The following piece of code will retieve the "Classes" mixin.
 
