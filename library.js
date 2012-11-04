@@ -222,7 +222,11 @@ var SK80 = (function () {
                         'argument must be an Array');
                 }
 
-                return new (Function.prototype.bind.apply(mixins[name], args));
+                function F() {
+                    return mixins[name].apply(this, args);
+                }
+                F.prototype = mixins[name].prototype;
+                return new F();
                 
             },
             
