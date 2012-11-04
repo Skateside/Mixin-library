@@ -202,7 +202,7 @@ var SK80 = (function () {
 //          (instance)          An instance of the mixin with any given
 //                              arguments.
             exec: function (name, args) {
-            
+
                 var mixins = getMixins(that);
 
                 if (!isString(name)) {
@@ -227,9 +227,9 @@ var SK80 = (function () {
                 }
                 F.prototype = mixins[name].prototype;
                 return new F();
-                
+
             },
-            
+
 // Lists all the mixins associated with this instance. This could be handy for
 // debugging but is probably not much use in any other situation.
 //
