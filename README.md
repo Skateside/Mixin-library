@@ -179,6 +179,8 @@ SK80.mixins.add('Classes', function () {
 });
 ```
 
+The "Classes" mixin may now be bolted onto any object using `SK80.create()` or executed as described in the next section.
+
 ### `SK80.mixins.exec(name [, args])` (returns instance of `name` mixin)
 
 The mixins are stored privately to protect the data. However, fans of anonymous functions may wish to use the re-use example higher up. The `SK80.mixins.exec()` method allow the mixin to be executed and arguments to be passed to it.
@@ -198,8 +200,6 @@ SK80.mixins.add('Tree', function (baseElement) {
     this.find = function (element, selector) {
         if (selector === undefined) {
             selector = element;
-// Because baseElement is undefined if this is bolted onto an object, if it is
-// falsy this.element should be used instead.
             element = baseElement || this.element;
         }
         return Array.prototype.slice.call(element.querySelectorAll(selector));
@@ -210,15 +210,17 @@ var tree = SK80.mixins.exec('Tree', [document.body]);
 tree.find('div'); // Finds all <div> elements on the page.
 ```
 
+No arguments are passed to the mixin as it is bolted onto an object using `SK80.create()`, therefore the `baseElement` variable would always be `undefined` when bolted onto an object but have a value when executed as above.
+
 ### `SK80.mixins.list()` (returns `Array`)
 
 As the mixins are stores privately, it may be useful to know which mixins have been registered. `SK80.mixins.list()` will reveal all the registered mixins in the form of an array of strings containing all the names of the mixins.
 
-Here is an example of the list, assuming that the "Classes" mixin has been added as above.
+Here is an example of the list, assuming that the "Classes" and "Tree" mixins have been added as above.
 
 ```js
 var list = SK80.mixins.list();
-list; // ['Classes']
+list; // ['Classes', 'Tree']
 ```
 
 Manipulating this list has no effect on the mixins themselves and `SK80.mixins.list()` will always return a fresh list.
