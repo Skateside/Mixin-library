@@ -1,6 +1,8 @@
 // These shims patch methods that the SK80 micro-library uses. References to the
 // ES5 spec have been included to ensure that the shims are as close to
 // standards as possible.
+// A lot of these shims are based on the ES5-shim by kriskowal:
+// https://github.com/kriskowal/es5-shim/blob/master/es5-shim.js
 (function () {
 
     'use strict';
@@ -184,6 +186,38 @@
                 });
             }
             return keys;
+        };
+    }
+
+// http://es5.github.com/#x15.3.4.5
+    if (!Function.prototype.hasOwnProperty('bind')) {
+        Function.prototype.bind = function (that) {
+            var target = this,
+                args   = Array.prototype.slice.call(arguments, 1),
+                bound;
+            
+            if (toString.call(target) !== '[object Function]') {
+                throw new TypeError(target + ' is not a Function');
+            }
+            
+            bound = function () {
+                var result,
+                    ret,
+                    iArgs = args.concat(Array.prototype.slice.call(arguments));
+                if (this instanceof bound) {
+                    result = target.apply(this, iArgs);
+                    ret = Object(result) === result ? result : this;
+                } else {
+                    ret = target.apply(that, iArgs);
+                }
+                return ret;
+            };
+            
+            if (target.prototype) {
+                bound.prototype = Object.create(target.prototype);
+            }
+            
+            return bound;
         };
     }
 

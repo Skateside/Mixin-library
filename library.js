@@ -26,7 +26,7 @@ var SK80 = (function () {
     'use strict';
 
     var sk80,
-        version = '0.4b',
+        version = '0.5b',
         toString = Object.prototype.toString,
         reserved = ['arguments', 'break', 'case', 'catch', 'class', 'const',
             'continue', 'debugger', 'default', 'do', 'else', 'enum', 'extends',
@@ -191,27 +191,41 @@ var SK80 = (function () {
                 mixins[name] = mixin;
             },
 
-// Retrieves a mixin associated with this instance. If the given name is not a
-// String, an error is thrown.
+// Executes a given mixin and returns the execution. If args is supplied, it is
+// passed to the mixin as the arguments. Based on this Stack Overflow answer:
+// http://stackoverflow.com/questions/1606797/use-of-apply-with-new-operator-is-this-possible
 //
 //      Takes:
-//          name (String)           The name of the mixin to retrieve.
+//          name (String)       The name of the mixin.
+//          [args] (Array)      Any arguments to pass to the mixin.
 //      Returns:
-//          (Function|undefined)    The mixin function if it was found,
-//                                  undefined if the mixin was not found.    
-            get: function (name) {
-
+//          (instance)          An instance of the mixin with any given
+//                              arguments.
+            exec: function (name, args) {
+            
                 var mixins = getMixins(that);
 
                 if (!isString(name)) {
-                    throw new TypeError('SK80.mixins.get name argument must ' +
+                    throw new TypeError('SK80.mixins.exec name argument must ' +
                         'be a String');
                 }
+                if (!mixins.hasOwnProperty(name)) {
+                    throw new TypeError('SK80.mixins.exec "' + name + '" ' +
+                        'mixin does not exist');
+                }
+                if (!isFunction(mixins[name])) {
+                    throw new TypeError('SK80.mixins.exec "' + name + '" ' +
+                        'mixin must be a Function');
+                }
+                if (args !== undefined && !Array.isArray(args)) {
+                    throw new TypeError('SK80.mixins.exec if provided, args ' +
+                        'argument must be an Array');
+                }
 
-                return mixins[name];
-
+                return new Function.prototype.bind.apply(mixins[name], args);
+                
             },
-
+            
 // Lists all the mixins associated with this instance. This could be handy for
 // debugging but is probably not much use in any other situation.
 //
@@ -227,6 +241,7 @@ var SK80 = (function () {
     };
 
     sk80.version = version;
+    sk80.call(sk80);
 
     return sk80;
 
