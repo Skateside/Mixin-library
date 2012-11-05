@@ -103,7 +103,7 @@
                     n = Math.max(0, len - Math.abs(n));
                 }
                 while (n < len) {
-                    if (objProto.hasOwnProperty.call(array, index) &&
+                    if (objProto.hasOwnProperty.call(array, n) &&
                             array[n] === search) {
                         index = n;
                         break;
