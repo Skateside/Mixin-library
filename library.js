@@ -223,7 +223,7 @@ var SK80 = (function () {
                 }
 
                 function F() {
-                    return mixins[name].apply(this, args);
+                    return mixins[name].apply(this, args || []);
                 }
                 F.prototype = mixins[name].prototype;
                 return new F();
