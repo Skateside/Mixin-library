@@ -26,7 +26,7 @@ var SK80 = (function () {
     'use strict';
 
     var sk80,
-        version = '0.5b',
+        version = '0.6b',
         toString = Object.prototype.toString,
         reserved = ['arguments', 'break', 'case', 'catch', 'class', 'const',
             'continue', 'debugger', 'default', 'do', 'else', 'enum', 'extends',
@@ -137,6 +137,37 @@ var SK80 = (function () {
             }
 
             return created;
+
+        };
+
+// Enhances one object with another by copying across properties. The original
+// object is untouched and serves as a template rather than the base. If any
+// settings are passed in, they are passed to this.create along with the new
+// object.
+//
+//      Takes:
+//          object (Object)         The object to enhance.
+//          enhancements (Object)   New properties to add to the new object.
+//          [settings] (Object)     Extra parameters used to set up the new
+//                                  object. Passed directly to this.create.
+//      Returns:
+//          (Object)                The newly enhanced object.
+        that.enhance = function (object, enhancements, settings) {
+
+            var prop,
+                created = Object.create(object);
+
+            created.$proto = object;
+
+            for (prop in enhancements) {
+                if (enhancements.hasOwnProperty(prop)) {
+                    created[prop] = enhancements[prop];
+                }
+            }
+
+            return settings === undefined ?
+                    created :
+                    that.create(created, settings);
 
         };
 
