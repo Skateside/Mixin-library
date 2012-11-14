@@ -2,22 +2,22 @@
 
 ## Contents
 
-1. [Intro](#sk80-intro)
-2. [Setting up the library](#sk80-setup)
-3. [`SK80.create`](#sk80-create)
-    1. [Cloning an object](#sk80-cloning)
-    2. [Bolting on mixins](#sk80-bolting)
-    3. [Initialising a new object](#sk80-init)
-    4. [Bolting on mixins and initialising the object](#sk80-boltinit)
-4. [`SK80.enhance`](#sk80-enhance)
-    1. [Enhancing an object](#sk80-enhancing)
-    2. [Finding the parent](#sk80-finding)
-5. [SK80.mixins](#sk80-mixins)
-    1. [How mixins look for SK80](#sk80-look)
-    2. [`SK80.mixins.add`](#sk80-add)
-    3. [`SK80.mixins.exec`](#sk80-exec)
-    4. [`SK80.mixins.list`](#sk80-list)
-6. [Change log](#sk80-changelog)
+1. [Intro](#intro)
+2. [Setting up the library](#setting-up-the-library)
+3. [`SK80.create`](#sk80createparentobject-settings-returns-object)
+    1. [Cloning an object](#cloning-an-object)
+    2. [Bolting on mixins](#bolting-on-mixins)
+    3. [Initialising a new object](#initialising-the-new-object)
+    4. [Bolting on mixins and initialising the object](#bolting-on-mixins-and-initialising-the-object)
+4. [`SK80.enhance`](#sk80enhanceparentobject-enhancements-settings-returns-object)
+    1. [Enhancing an object](#enhancing-an-object)
+    2. [Finding the parent](#finding-the-parent)
+5. [SK80.mixins](#sk80mixins)
+    1. [How mixins look for SK80](#how-mixins-look-for-sk80)
+    2. [`SK80.mixins.add`](#sk80mixinsaddname-mixin)
+    3. [`SK80.mixins.exec`](#sk80mixinsexecname--args-returns-instance-of-name-mixin)
+    4. [`SK80.mixins.list`](#sk80mixinslist-returns-array)
+6. [Change log](#change-log)
 
 ## <a id="sk80-intro"></a>Intro
 
