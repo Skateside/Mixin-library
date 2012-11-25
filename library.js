@@ -1,9 +1,11 @@
-// The SK80 mixin micro-library. Adds 2 properties to an object.
+// The SK80 mixin micro-library. Adds 3 properties to an object.
 //
 //      Properties:
 //          this.create (Function)      Creates an object based on another. Can
 //                                      also fire the object's "init" method and
 //                                      add mixins.
+//          this.enhance (Function)     Adds properties of one object to
+//                                      another.
 //          this.mixins (Object)        An object to contain the mixins methods.
 //              this.mixins.add()           Adds a mixin.
 //              this.mixins.get()           Retrieves a mixin.
@@ -11,10 +13,9 @@
 //
 // It can be used in any of three ways.
 //
+//      The properties are already attached to the SK80 namespace.
 //      To add these properties to your own namespace:
 //          SK80.call(MYNAMESPACE);
-//      To contain these properties within the SK80 namespace:
-//          SK80.call(SK80);
 //      To create a new object with these properties:
 //          var myObject = new SK80();    
 //
@@ -25,18 +26,34 @@ var SK80 = (function () {
 
     'use strict';
 
-    var sk80,
-        version = '0.6b',
+    var constants = {
+
+            ERR_NOTARRAY:          'SK80.%s %s argument must be an Array',
+            ERR_NOTFUNC:           'SK80.%s %s argument must be an Function',
+            ERR_NOTSTRING:         'SK80.%s %s argument must be a String',
+            ERR_MIXINNOTFOUND:     'SK80.%s "%s" mixin cannot be found'
+            ERR_CREATENOTARROFSTR: 'SK80.create settings.mixins must be an ' +
+                'Array of Strings',
+            ERR_CREATENOTFUNC:     'SK80.create "%s" mixin is not a Function',
+            ERR_ADDNOPROPS:        'SK80.mixins.add "%s" mixin does not add ' +
+                'any new properties to an object',
+            ERR_EXECARGSNOTARR:    'SK80.mixins.exec if provided, args ' +
+                'argument must be an Array',
+
+            PROP_PROTO: '$proto'
+
+        },
+
+        sk80,
+        version  = '0.6.1b',
+
         toString = Object.prototype.toString,
-        reserved = ['arguments', 'break', 'case', 'catch', 'class', 'const',
-            'continue', 'debugger', 'default', 'do', 'else', 'enum', 'extends',
-            'false', 'finally', 'for', 'function', 'if', 'implements', 'import',
-            'in', 'instanceof', 'interface', 'let', 'new', 'null', 'package',
-            'private', 'protected', 'public', 'return', 'super', 'static',
-            'switch', 'this', 'throw', 'true', 'try', 'typeof', 'var', 'void',
-            'while', 'with', 'yield'],
+        hasOwn   = Object.prototype.hasOwnProperty,
+
         instances = [],
-        mixins = [];
+        mixins    = [],
+
+        undef; // = undefined
 
 // Checks to ensure that a given object is a String.
 //
@@ -56,6 +73,95 @@ var SK80 = (function () {
 //          (Boolean)           true if a Function, false otherwise.
     function isFunction(object) {
         return toString.call(object) === '[object Function]';
+    }
+
+// Works out whether a given object is the global window object.
+// Based on jQuery.isWindow http://code.jquery.com/jquery-1.8.3.js
+//
+//      Takes:
+//          object (Mixed)      The object to test.
+//      Returns:
+//          (Boolean)           true if the object is window, false otherwise.
+    function isWindow(object) {
+        return object !== null && object !== undef && object === object.window;
+    }
+
+// Checks an object to see if it's a plain object, rather than something like a
+// DOM node or window.
+// Based on jQuery.isPlainObject http://code.jquery.com/jquery-1.8.3.js
+//
+//      Takes:
+//          object (Mixed)      The object to test.
+//      Returns:
+//          (Boolean)           true if the object is a plain object, false
+//                              otherwise.
+    function isPlainObject(object) {
+
+        var isPlain = false,
+            key;
+
+        if (object && typeof object === 'object' && !Array.isArray(object) &&
+                !object.nodeType && !isWindow(object)) {
+            for (key in object) {
+            }
+            isPlain = key === undef || hasOwn.call(object, key);
+        }
+
+        return isPlain;
+
+    }
+
+// Inserts new strings into a given string replacing "%s" placeholders.
+//
+//      Takes:
+//          str (String)        The original string.
+//          ...args (String)    An string to insert into the original string.
+//      Returns:
+//          (String)            The formatted string.
+    function sprintf(str) {
+
+        var args = Array.prototype.slice.call(arguments, 1),
+            i = 0,
+            il = args.length;
+        
+        while (i < il) {
+            str = str.replace('%s', args[i]);
+            i += 1;
+        }
+        
+        return str;
+
+    }
+
+// Enhances source by going through the properties of extra and adding them to
+// source. If the property of source and extra are both plain objects, those
+// objects are also enhanced. It ignores the $proto property since that is
+// replaced in sk80.enhance
+//
+//      Takes:
+//          source (Object)     The source object that should be enhanced.
+//          extras (Object)     Object with properties that should be added to
+//                              source.
+//      Returns:
+//          (Object)            The enhanced source.
+    function enhance(source, extras) {
+
+        var prop;
+
+        for (prop in extras) {
+            if (extras.hasOwnProperty(prop)) {
+                if (prop !== constants.PROP_PROTO &&
+                        isPlainObject(source[prop]) &&
+                        isPlainObject(extras[prop])) {
+                    source[prop] = enhance(source[prop], extras[prop]);
+                } else {
+                    source[prop] = extras[prop];
+                }
+            }
+        }
+
+        return source;
+
     }
 
 // Retrieves the correct mixins Object from the mixins Array for the given
@@ -102,35 +208,36 @@ var SK80 = (function () {
             var store = getMixins(that),
                 created = Object.create(object);
 
-            if (settings !== undefined) {
+            if (settings !== undef) {
 
-                if (settings.hasOwnProperty('mixins')) {
+                if (hasOwn.call(settings, 'mixins')) {
                     if (!Array.isArray(settings.mixins)) {
-                        throw new TypeError('SK80.create mixins must be an ' +
-                            'Array');
+                        throw new TypeError(
+                            sprintf(constants.ERR_NOTARRAY, 'create', 'mixins')
+                        );
                     }
                     settings.mixins.forEach(function (mixin) {
                         if (!isString(mixin)) {
-                            throw new TypeError('SK80.create settings.mixins ' +
-                                'must be an Array of Strings');
+                            throw new TypeError(
+                                constants.ERR_CREATENOTARROFSTR
+                            );
                         }
-                        if (!store.hasOwnProperty(mixin)) {
-                            throw new ReferenceError('SK80.create "' + mixin +
-                                '" mixin cannot be found');
-                        }
-                        if (!isFunction(store[mixin])) {
-                            throw new TypeError('SK80.create "' + mixin +
-                                '" mixin is not a Function');
+                        if (!hasOwn.call(store, mixin)) {
+                            throw new ReferenceError(
+                                sprintf(constants.ERR_MIXINNOTFOUND, 'create',
+                                        mixin)
+                            );
                         }
                         store[mixin].call(created);
                     });
                 }
 
-                if (settings.hasOwnProperty('args')
-                        && isFunction(created.init)) {
+                if (hasOwn.call(settings, 'args') && isFunction(created.init)) {
                     if (!Array.isArray(settings.args)) {
-                        throw new TypeError('SK80.create settings.args must ' +
-                            'be an Array');
+                        throw new TypeError(
+                            sprintf(constants.ERR_NOTARRAY, 'create',
+                                    'settings.args')
+                        );
                     }
                     created.init.apply(created, settings.args);
                 }
@@ -154,18 +261,12 @@ var SK80 = (function () {
 //          (Object)                The newly enhanced object.
         that.enhance = function (object, enhancements, settings) {
 
-            var prop,
-                created = Object.create(object);
+            var created = Object.create(object);
 
-            created.$proto = object;
+            enhance(created, enhancements);
+            created[constants.PROP_PROTO] = object;
 
-            for (prop in enhancements) {
-                if (enhancements.hasOwnProperty(prop)) {
-                    created[prop] = enhancements[prop];
-                }
-            }
-
-            return settings === undefined ?
+            return settings === undef ? 
                     created :
                     that.create(created, settings);
 
@@ -178,10 +279,9 @@ var SK80 = (function () {
         that.mixins = {
 
 // Adds a mixin for this instance. This function checks to ensure that the mixin
-// name is a String, the mixin is a Function, a mixin with the same name doesn't
-// already exist, the name isn't a reserves word in JavaScript and that the
-// mixin will add properties to an Object when called. If any of these checks
-// fail, an error is thrown.
+// name is a String, the mixin is a Function and that the mixin will add
+// properties to an Object when called. If any of these checks fail, an error is
+// thrown.
 //
 //      Takes:
 //          name (String)       The name of the mixin. It should be a valid
@@ -194,29 +294,20 @@ var SK80 = (function () {
                     mixins = getMixins(that);
 
                 if (!isString(name)) {
-                    throw new TypeError('SK80.mixins.add name argument must ' +
-                        'be a String');
+                    throw new TypeError(
+                        sprintf(constants.ERR_NOTSTRING, 'mixins.add', 'name')
+                    );
                 }
 
                 if (!isFunction(mixin)) {
-                    throw new TypeError('SK80.mixins.add mixin argument must ' +
-                        'be a Function');
-                }
-
-                if (mixins.hasOwnProperty(name)) {
-                    throw new Error('SK80.mixins.add "' + name + '" mixin ' +
-                        'has already been defined');
-                }
-
-                if (reserved.indexOf(name) > -1) {
-                    throw new SyntaxError('SK80.mixins.add "' + name + '" is ' +
-                        'a reserved word in JavaScript');
+                    throw new TypeError(
+                        sprintf(constants.ERR_NOTFUNC, 'mixins.add', 'mixin')
+                    );
                 }
 
                 mixin.call(test);
                 if (Object.keys(test).length === 0) {
-                    throw new Error('SK80.mixins.add "' + name + '" mixin ' +
-                        'does not add any new properties to an object');
+                    throw new Error(sprintf(constants.ERR_ADDNOPROPS, name));
                 }
 
                 mixins[name] = mixin;
@@ -234,26 +325,25 @@ var SK80 = (function () {
 //                              arguments.
             exec: function (name, args) {
 
-                var mixins = getMixins(that);
+                var mixins = getMixins(that),
+                    F;
 
                 if (!isString(name)) {
-                    throw new TypeError('SK80.mixins.exec name argument must ' +
-                        'be a String');
+                    throw new TypeError(
+                        sprintf(constants.ERR_NOTSTRING, 'mixins.exec', 'name')
+                    );
                 }
-                if (!mixins.hasOwnProperty(name)) {
-                    throw new TypeError('SK80.mixins.exec "' + name + '" ' +
-                        'mixin does not exist');
+                if (!hasOwn.call(mixins, name)) {
+                    throw new TypeError(
+                        sprintf(constants.ERR_MIXINNOTFOUND, 'mixins.exec',
+                                name)
+                    );
                 }
-                if (!isFunction(mixins[name])) {
-                    throw new TypeError('SK80.mixins.exec "' + name + '" ' +
-                        'mixin must be a Function');
-                }
-                if (args !== undefined && !Array.isArray(args)) {
-                    throw new TypeError('SK80.mixins.exec if provided, args ' +
-                        'argument must be an Array');
+                if (args !== undef && !Array.isArray(args)) {
+                    throw new TypeError(constants.ERR_EXECARGSNOTARR);
                 }
 
-                function F() {
+                F = function () {
                     return mixins[name].apply(this, args || []);
                 }
                 F.prototype = mixins[name].prototype;

@@ -147,7 +147,7 @@ var foo = SK80.create({
 
 ## <a id="sk80-enhance"></a>`SK80.enhance(parentObject, enhancements [,settings])` (returns `Object`)
 
-Enhancing an object allows new object to be created from existing ones without affecting that existing object. The new object will have all the properties of the old one as well as any new ones that were added at this stage. A new `$proto` property is also added as a reference to the parent object.
+Enhancing an object allows new object to be created from existing ones without affecting that existing object. The new object will have all the properties of the old one as well as any new ones that were added at this stage. Any objects will be combined. A new `$proto` property is also added as a reference to the parent object.
 
 ### <a id="sk80-enhancing"></a>Enhancing an object
 
@@ -182,6 +182,48 @@ var bar = SK80.enhance(foo, {
 
 console.log(bar.draw); // "function" <- parent's properties are inherited.
 console.log(foo.drawMore); // "undefined" <- parent is unchanged.
+```
+
+Any plain objects that are found are combined rather than replaced. This allows things like class names to be created in the parent, augmented in the child and still accessible.
+
+```js
+var foo = SK80.create({
+    constants: {
+        NAME:     'foo',
+        CSS_SK80: 'SK80ified'
+    },
+    init: function (elem) {
+        this.element = elem;
+        this.draw();
+    },
+    draw: function () {
+        this.addClass(this.constants.CSS_SK80);
+    }
+}, {
+    mixins: ['Classes']
+});
+
+var bar = SK80.enhance(foo, {
+
+    constants: {
+        NAME:       'bar',
+        CSS_GNARLY: 'GnarlySK80ified'
+    },
+
+    // This new init method works in place of the parent's one.
+    init: function (elem) {
+        foo.init.call(this, elem);
+        this.drawMore();
+    },
+    
+    // No need to bold the mixins on again, they're inherited from the parent.
+    drawMore: function () {
+        this.addClass(this.constants.CSS_GNARLY);
+    }
+});
+
+foo.constants; // {NAME: 'foo', CSS_SK80: 'SK80ified'}
+bar.constants; // {NAME: 'bar', CSS_SK80: 'SK80ified', CSS_GNARLY: 'GnarlySK80ified'}
 ```
 
 If a third argument it passed to `SK80.enhance()`, it is treated the same as the `settings` argument of `SK80.create()`.
@@ -258,7 +300,7 @@ When a mixin is added to the object by `SK80.create()`, no arguments are passed 
 
 ### <a id="sk80-add"></a>`SK80.mixins.add(name, mixin)`
 
-This method allows mixins to be created. The mixins are stored privately but are accessible using `SK80.mixins.get()`. A lot of validation checks are done at this stage, including checking that the mixin doesn't already exist and that executing it will add properties to an object. Be aware that the only way to do that is to execute the mixin function.
+This method allows mixins to be created. The mixins are stored privately but are accessible using `SK80.mixins.get()`. A lot of validation checks are done at this stage, including checking that the mixin will add properties to an object. Be aware that the only way to do that is to execute the mixin function.
 
 Here is an example of adding the "Classes" mixin:
 
@@ -266,8 +308,6 @@ Here is an example of adding the "Classes" mixin:
 SK80.mixins.add('Classes', ClassesMixin);
 
 // Or, if you prefer to use anonymous functions:
-// (Be aware that if the previous line is left in, an error will be thrown
-// because the "Classes" mixin has already been defined)
 SK80.mixins.add('Classes', function () {
     this.addClass = function (elem, className) {
         if (className === undefined) {
@@ -326,6 +366,13 @@ list; // ['Classes', 'Tree']
 Manipulating this list has no effect on the mixins themselves and `SK80.mixins.list()` will always return a fresh list.
 
 ## <a id="sk80-changelog"></a>Change log
+
+**0.6.1b** (25 November 2012)
+*   Allowed `SK80.mixins.add()` to replace existing mixins.
+*   Removed reserved word checking from `SK80.mixins.add()`.
+*   Improved `SK80.enhance()` so it will combine plain objects rather than replacing them.
+*   Updated coding style to make it more maintainable and customisable, removed unnecessary checks and errors.
+*   Updated comments to reflect changes forgotten in previous version.
 
 **0.6b** (14th November 2012)
 *   Added `SK80.enhance()`
