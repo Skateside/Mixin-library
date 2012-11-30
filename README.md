@@ -180,8 +180,8 @@ var bar = SK80.enhance(foo, {
     }
 });
 
-console.log(bar.draw); // "function" <- parent's properties are inherited.
-console.log(foo.drawMore); // "undefined" <- parent is unchanged.
+console.log(typeof bar.draw); // "function" <- parent's properties are inherited.
+console.log(typeof foo.drawMore); // "undefined" <- parent is unchanged.
 ```
 
 Any plain objects that are found are combined rather than replaced. This allows things like class names to be created in the parent, augmented in the child and still accessible.
@@ -247,15 +247,15 @@ var bar = SK80.enhance(foo, {
 
 ### <a id="sk80-finding"></a>Finding the parent
 
-As you may have noticed, the `bar` example was tightly coupled to `foo`. Often this is undesirable and a general link to the parent would be more useful. For these times, `SK80.enhance()` adds a `$proto` property which is a link to the parent.
+As you may have noticed, the `bar` example was tightly coupled to `foo`. Often this is undesirable and a general link to the parent would be more useful. For these times, `SK80.enhance()` adds a static `$proto` property which is a link to the parent.
 
 ```js
 // A less tightly coupled version of the "bar" example.
 var bar = SK80.enhance(foo, {
 
-    // this.$proto is a link to the parent.
+    // bar.$proto is a link to the parent.
     init: function (elem) {
-        this.$proto.init.call(this, elem);
+        bar.$proto.init.call(this, elem);
         this.drawMore();
     },
     drawMore: function () {
@@ -264,6 +264,7 @@ var bar = SK80.enhance(foo, {
 });
 ```
 
+Try to avoid using `this.$proto` as the instance will be continuously updated and may not refer to the object you expect.
 
 ## <a id="sk80-mixins"></a>SK80.mixins
 

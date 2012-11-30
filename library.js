@@ -31,7 +31,7 @@ var SK80 = (function () {
             ERR_NOTARRAY:          'SK80.%s %s argument must be an Array',
             ERR_NOTFUNC:           'SK80.%s %s argument must be an Function',
             ERR_NOTSTRING:         'SK80.%s %s argument must be a String',
-            ERR_MIXINNOTFOUND:     'SK80.%s "%s" mixin cannot be found'
+            ERR_MIXINNOTFOUND:     'SK80.%s "%s" mixin cannot be found',
             ERR_CREATENOTARROFSTR: 'SK80.create settings.mixins must be an ' +
                 'Array of Strings',
             ERR_CREATENOTFUNC:     'SK80.create "%s" mixin is not a Function',
@@ -45,7 +45,7 @@ var SK80 = (function () {
         },
 
         sk80,
-        version  = '0.6.1b',
+        version  = '0.6.2b',
 
         toString = Object.prototype.toString,
         hasOwn   = Object.prototype.hasOwnProperty,
@@ -120,16 +120,17 @@ var SK80 = (function () {
 //          (String)            The formatted string.
     function sprintf(str) {
 
-        var args = Array.prototype.slice.call(arguments, 1),
+        var newStr = str,
+            args = Array.prototype.slice.call(arguments, 1),
             i = 0,
             il = args.length;
-        
+
         while (i < il) {
-            str = str.replace('%s', args[i]);
+            newStr = newStr.replace('%s', args[i]);
             i += 1;
         }
-        
-        return str;
+
+        return newStr;
 
     }
 
@@ -266,7 +267,7 @@ var SK80 = (function () {
             enhance(created, enhancements);
             created[constants.PROP_PROTO] = object;
 
-            return settings === undef ? 
+            return settings === undef ?
                     created :
                     that.create(created, settings);
 
@@ -345,7 +346,7 @@ var SK80 = (function () {
 
                 F = function () {
                     return mixins[name].apply(this, args || []);
-                }
+                };
                 F.prototype = mixins[name].prototype;
                 return new F();
 
