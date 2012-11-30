@@ -368,6 +368,10 @@ Manipulating this list has no effect on the mixins themselves and `SK80.mixins.l
 
 ## <a id="sk80-changelog"></a>Change log
 
+**0.6.2b** (20 November 2012)
+*   Fixing a syntax error.
+*   General script tidying up.
+
 **0.6.1b** (25 November 2012)
 *   Allowed `SK80.mixins.add()` to replace existing mixins.
 *   Removed reserved word checking from `SK80.mixins.add()`.
